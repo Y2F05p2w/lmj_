@@ -1,17 +1,25 @@
-Flask==2.0.1
-Flask-SQLAlchemy==2.5.1
-Flask-Login==0.5.0
-Flask-WTF==0.15.1
-Flask-Migrate==3.1.0
-Pillow==8.3.1
-markdown==3.3.4
-python-dotenv==0.19.0
-gunicorn==20.1.0
-Flask-Bcrypt==0.7.1
-email-validator==1.1.3
-matplotlib==3.5.1
-pandas==1.3.3
-pygal==2.4.0
-PyMySQL==1.0.2
-cryptography==3.4.7
-#管理依赖
+# Flask 核心依赖
+Flask==2.0.1                # Web框架
+Flask-SQLAlchemy==2.5.1    # ORM数据库
+Flask-Login==0.5.0         # 用户认证
+Flask-WTF==0.15.1          # 表单处理
+Flask-Migrate==3.1.0       # 数据库迁移
+Flask-Bcrypt==0.7.1        # 密码加密
+
+# 数据库相关
+PyMySQL==1.0.2            # MySQL驱动
+cryptography==3.4.7       # PyMySQL的依赖，用于安全连接
+
+# 文件处理
+Pillow==8.3.1            # 图片处理（用于头像）
+
+# 表单验证
+email-validator==1.1.3    # 邮箱验证
+
+# 数据分析和可视化
+pandas==1.3.3            # 数据处理
+matplotlib==3.5.1        # 基础图表绘制
+
+# 部署相关
+python-dotenv==0.19.0    # 环境变量管理
+gunicorn==20.1.0        # 生产环境WSGI服务器
