@@ -1,0 +1,192 @@
+{% extends "layout.html" %}
+{% block content %}
+<div class="row">
+    <div class="col-md-8">
+        <div class="card mb-4">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-start">
+                    <div>
+                        <h2 class="card-title">{{ competition.name }}</h2>
+                        <p class="text-muted mb-3">
+                            <i class="fas fa-user"></i> 创建者：{{ competition.creator.username }} |
+                            <i class="fas fa-calendar"></i> 创建于：{{ competition.created_at.strftime('%Y-%m-%d') }}
+                        </p>
+                    </div>
+                    <span class="badge {% if competition.end_date < now %}bg-secondary{% elif competition.start_date > now %}bg-info{% else %}bg-success{% endif %} fs-6">
+                        {% if competition.end_date < now %}
+                            已结束
+                        {% elif competition.start_date > now %}
+                            即将开始
+                        {% else %}
+                            进行中
+                        {% endif %}
+                    </span>
+                </div>
+                <div class="competition-info mb-4">
+                    <h5>比赛说明</h5>
+                    <p class="card-text">{{ competition.description }}</p>
+                    <div class="row g-3">
+                        <div class="col-auto">
+                            <span class="badge bg-light text-dark">
+                                <i class="fas fa-calendar-alt"></i>
+                                开始时间：{{ competition.start_date.strftime('%Y-%m-%d %H:%M') }}
+                            </span>
+                        </div>
+                        <div class="col-auto">
+                            <span class="badge bg-light text-dark">
+                                <i class="fas fa-calendar-check"></i>
+                                结束时间：{{ competition.end_date.strftime('%Y-%m-%d %H:%M') }}
+                            </span>
+                        </div>
+                        <div class="col-auto">
+                            <span class="badge bg-light text-dark">
+                                <i class="fas fa-users"></i>
+                                参与人数：{{ competition.results|length }}
+                            </span>
+                        </div>
+                    </div>
+                </div>
+
+                {% if current_user.is_authenticated and competition.end_date >= now %}
+                    <div class="text-center">
+                        <a href="{{ url_for('competition.add_result', competition_id=competition.id) }}" class="btn btn-primary">
+                            <i class="fas fa-plus-circle"></i> 提交成绩
+                        </a>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">成绩排名</h5>
+            </div>
+            <div class="card-body">
+                {% if results %}
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>排名</th>
+                                    <th>参与者</th>
+                                    <th>得分</th>
+                                    <th>提交时间</th>
+                                    <th>备注</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for result in results %}
+                                    <tr {% if result.user_id == current_user.id %}class="table-primary"{% endif %}>
+                                        <td>{{ loop.index }}</td>
+                                        <td>{{ result.user.username }}</td>
+                                        <td>
+                                            <span class="badge bg-success">{{ result.score }}</span>
+                                        </td>
+                                        <td>{{ result.date_submitted.strftime('%Y-%m-%d %H:%M') }}</td>
+                                        <td>
+                                            {% if result.remarks %}
+                                                <i class="fas fa-comment text-muted" data-bs-toggle="tooltip" title="{{ result.remarks }}"></i>
+                                            {% endif %}
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}
+                    <div class="text-center text-muted py-4">
+                        <i class="fas fa-trophy fa-3x mb-3"></i>
+                        <p>暂无成绩记录</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="card mb-4">
+            <div class="card-header bg-primary text-white">
+                <h5 class="card-title mb-0">成绩统计</h5>
+            </div>
+            <div class="card-body">
+                <canvas id="scoreDistributionChart"></canvas>
+            </div>
+        </div>
+
+        {% if current_user.is_authenticated %}
+            <div class="card">
+                <div class="card-header bg-info text-white">
+                    <h5 class="card-title mb-0">我的成绩</h5>
+                </div>
+                <div class="card-body">
+                    {% if user_result %}
+                        <div class="text-center">
+                            <h3 class="mb-3">{{ user_result.score }}</h3>
+                            <p class="mb-2">当前排名：第 {{ results.index(user_result) + 1 }} 名</p>
+                            <small class="text-muted">提交时间：{{ user_result.date_submitted.strftime('%Y-%m-%d %H:%M') }}</small>
+                        </div>
+                    {% else %}
+                        <div class="text-center text-muted">
+                            <p>您还未提交成绩</p>
+                            {% if competition.end_date >= now %}
+                                <a href="{{ url_for('competition.add_result', competition_id=competition.id) }}" class="btn btn-primary btn-sm">
+                                    立即提交
+                                </a>
+                            {% endif %}
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock content %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // 初始化工具提示
+    var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+    tooltipTriggerList.map(function(tooltipTriggerEl) {
+        return new bootstrap.Tooltip(tooltipTriggerEl);
+    });
+
+    // 成绩分布图表
+    const scores = {{ results|map(attribute='score')|list|tojson }};
+    const ctx = document.getElementById('scoreDistributionChart').getContext('2d');
+    new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: ['0-20', '21-40', '41-60', '61-80', '81-100'],
+            datasets: [{
+                label: '成绩分布',
+                data: [
+                    scores.filter(s => s <= 20).length,
+                    scores.filter(s => s > 20 && s <= 40).length,
+                    scores.filter(s => s > 40 && s <= 60).length,
+                    scores.filter(s => s > 60 && s <= 80).length,
+                    scores.filter(s => s > 80).length
+                ],
+                backgroundColor: '#36A2EB'
+            }]
+        },
+        options: {
+            responsive: true,
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: {
+                        stepSize: 1
+                    }
+                }
+            },
+            plugins: {
+                legend: {
+                    display: false
+                }
+            }
+        }
+    });
+});
+</script>
+{% endblock scripts %} 

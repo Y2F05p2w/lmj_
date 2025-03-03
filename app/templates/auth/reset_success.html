@@ -1,0 +1,21 @@
+{% extends "layout.html" %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-6 offset-md-3">
+        <div class="card">
+            <div class="card-header bg-success text-white">
+                <h3 class="card-title mb-0">密码重置成功</h3>
+            </div>
+            <div class="card-body text-center">
+                <i class="fas fa-check-circle fa-5x text-success mb-4"></i>
+                <h4 class="mb-3">您的密码已成功重置！</h4>
+                <p class="mb-4">您现在可以使用新密码登录您的账户。</p>
+                <a href="{{ url_for('auth.login') }}" class="btn btn-primary btn-lg">
+                    <i class="fas fa-sign-in-alt"></i> 立即登录
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock content %} 

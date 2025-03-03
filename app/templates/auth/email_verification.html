@@ -1,0 +1,94 @@
+{% extends "layout.html" %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-8 offset-md-2">
+        <div class="card">
+            <div class="card-header bg-info text-white">
+                <h3 class="card-title mb-0">邮箱验证</h3>
+            </div>
+            <div class="card-body">
+                {% if verified %}
+                    <div class="text-center">
+                        <i class="fas fa-envelope-open-text fa-5x text-success mb-4"></i>
+                        <h4 class="mb-3">邮箱验证成功！</h4>
+                        <p class="mb-4">您的邮箱 <strong>{{ current_user.email }}</strong> 已成功验证。</p>
+                        <a href="{{ url_for('main.home') }}" class="btn btn-primary">
+                            <i class="fas fa-home"></i> 返回首页
+                        </a>
+                    </div>
+                {% elif sent %}
+                    <div class="text-center">
+                        <i class="fas fa-paper-plane fa-5x text-info mb-4"></i>
+                        <h4 class="mb-3">验证邮件已发送</h4>
+                        <p>我们已向您的邮箱 <strong>{{ current_user.email }}</strong> 发送了一封验证邮件。</p>
+                        <p class="mb-4">请检查您的收件箱（包括垃圾邮件文件夹），并点击邮件中的验证链接完成验证。</p>
+                        
+                        <div class="alert alert-warning">
+                            <p class="mb-0">没有收到验证邮件？请检查垃圾邮件文件夹或点击下方按钮重新发送。</p>
+                        </div>
+                        
+                        <form method="POST" action="{{ url_for('auth.resend_verification') }}">
+                            {{ form.hidden_tag() }}
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-redo"></i> 重新发送验证邮件
+                            </button>
+                        </form>
+                    </div>
+                {% else %}
+                    <div class="text-center">
+                        <i class="fas fa-envelope fa-5x text-warning mb-4"></i>
+                        <h4 class="mb-3">您的邮箱尚未验证</h4>
+                        <p>您的账户需要验证邮箱 <strong>{{ current_user.email }}</strong> 才能使用全部功能。</p>
+                        <p class="mb-4">点击下方按钮发送验证邮件。</p>
+                        
+                        <form method="POST" action="{{ url_for('auth.send_verification') }}">
+                            {{ form.hidden_tag() }}
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-paper-plane"></i> 发送验证邮件
+                            </button>
+                        </form>
+                    </div>
+                {% endif %}
+            </div>
+            {% if not verified %}
+                <div class="card-footer">
+                    <div class="accordion" id="emailVerificationFAQ">
+                        <div class="accordion-item">
+                            <h2 class="accordion-header" id="headingOne">
+                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" 
+                                        data-bs-target="#collapseOne" aria-expanded="false" aria-controls="collapseOne">
+                                    为什么需要验证邮箱？
+                                </button>
+                            </h2>
+                            <div id="collapseOne" class="accordion-collapse collapse" aria-labelledby="headingOne" 
+                                 data-bs-parent="#emailVerificationFAQ">
+                                <div class="accordion-body">
+                                    验证邮箱有助于确保账户安全，防止他人冒用您的身份。同时，验证邮箱后您可以接收重要通知、
+                                    密码重置邮件等信息，并使用系统的全部功能。
+                                </div>
+                            </div>
+                        </div>
+                        <div class="accordion-item">
+                            <h2 class="accordion-header" id="headingTwo">
+                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" 
+                                        data-bs-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
+                                    没有收到验证邮件怎么办？
+                                </button>
+                            </h2>
+                            <div id="collapseTwo" class="accordion-collapse collapse" aria-labelledby="headingTwo" 
+                                 data-bs-parent="#emailVerificationFAQ">
+                                <div class="accordion-body">
+                                    请检查您的垃圾邮件文件夹，有时验证邮件可能会被误判为垃圾邮件。如果仍未找到，
+                                    您可以点击"重新发送验证邮件"按钮。如果问题持续存在，请确认您输入的邮箱地址是否正确，
+                                    或联系管理员寻求帮助。
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock content %} 

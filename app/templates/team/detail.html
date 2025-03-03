@@ -1,0 +1,93 @@
+{% extends "layout.html" %}
+{% block content %}
+<div class="row">
+    <div class="col-md-8">
+        <div class="card mb-4">
+            <div class="card-body">
+                <h2 class="card-title">{{ team.name }}</h2>
+                <p class="card-text">{{ team.description }}</p>
+                <div class="text-muted">
+                    <small>创建时间：{{ team.created_at.strftime('%Y-%m-%d') }}</small>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">团队成员</h5>
+                {% if current_user.is_authenticated %}
+                    {% for member in team.members %}
+                        {% if member.user_id == current_user.id and member.role == 'leader' %}
+                            <a href="{{ url_for('team.add_member', team_id=team.id) }}" class="btn btn-primary btn-sm">
+                                <i class="fas fa-user-plus"></i> 添加成员
+                            </a>
+                        {% endif %}
+                    {% endfor %}
+                {% endif %}
+            </div>
+            <div class="card-body">
+                <div class="list-group">
+                    {% for member in team.members %}
+                        <div class="list-group-item d-flex justify-content-between align-items-center">
+                            <div>
+                                <h6 class="mb-1">{{ member.user.username }}</h6>
+                                <small class="text-muted">加入时间：{{ member.joined_at.strftime('%Y-%m-%d') }}</small>
+                            </div>
+                            <span class="badge {% if member.role == 'leader' %}bg-primary{% else %}bg-secondary{% endif %}">
+                                {{ member.role }}
+                            </span>
+                        </div>
+                    {% else %}
+                        <div class="text-center py-3">
+                            <p class="text-muted mb-0">暂无团队成员</p>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5 class="card-title mb-0">团队统计</h5>
+            </div>
+            <div class="card-body">
+                <ul class="list-unstyled">
+                    <li class="mb-2">
+                        <i class="fas fa-users"></i> 成员数：{{ team.members|length }}
+                    </li>
+                    <li class="mb-2">
+                        <i class="fas fa-crown"></i> 领导数：
+                        {{ team.members|selectattr('role', 'equalto', 'leader')|list|length }}
+                    </li>
+                    <li>
+                        <i class="fas fa-calendar-alt"></i> 运行天数：
+                        {{ (now - team.created_at).days }}
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+        {% if current_user.is_authenticated %}
+            <div class="card">
+                <div class="card-body">
+                    {% if is_member %}
+                        <form action="{{ url_for('team.leave_team', team_id=team.id) }}" method="POST">
+                            <button type="submit" class="btn btn-danger btn-block w-100">
+                                <i class="fas fa-sign-out-alt"></i> 退出团队
+                            </button>
+                        </form>
+                    {% else %}
+                        <form action="{{ url_for('team.join_team', team_id=team.id) }}" method="POST">
+                            <button type="submit" class="btn btn-success btn-block w-100">
+                                <i class="fas fa-sign-in-alt"></i> 加入团队
+                            </button>
+                        </form>
+                    {% endif %}
+                </div>
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock content %} 

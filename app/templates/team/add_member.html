@@ -1,0 +1,36 @@
+{% extends "layout.html" %}
+{% block content %}
+<div class="row">
+    <div class="col-md-6 offset-md-3">
+        <div class="card">
+            <div class="card-header bg-primary text-white">
+                <h3 class="card-title mb-0">添加团队成员</h3>
+            </div>
+            <div class="card-body">
+                <h5 class="mb-3">团队：{{ team.name }}</h5>
+                <form method="POST" action="">
+                    {{ form.hidden_tag() }}
+                    <div class="mb-3">
+                        {{ form.user_id.label(class="form-label") }}
+                        {% if form.user_id.errors %}
+                            {{ form.user_id(class="form-select is-invalid") }}
+                            <div class="invalid-feedback">
+                                {% for error in form.user_id.errors %}
+                                    <span>{{ error }}</span>
+                                {% endfor %}
+                            </div>
+                        {% else %}
+                            {{ form.user_id(class="form-select") }}
+                        {% endif %}
+                        <small class="form-text text-muted">选择要添加到团队的成员。</small>
+                    </div>
+                    <div class="d-grid gap-2">
+                        {{ form.submit(class="btn btn-primary") }}
+                        <a href="{{ url_for('team.team_detail', team_id=team.id) }}" class="btn btn-outline-secondary">取消</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock content %} 

@@ -1,0 +1,117 @@
+{% extends "layout.html" %}
+{% block content %}
+<div class="row">
+    <div class="col-md-8 offset-md-2">
+        <div class="card">
+            <div class="card-header bg-primary text-white">
+                <h3 class="card-title mb-0">创建新比赛</h3>
+            </div>
+            <div class="card-body">
+                <form method="POST" action="">
+                    {{ form.hidden_tag() }}
+                    <div class="mb-3">
+                        {{ form.name.label(class="form-label") }}
+                        {% if form.name.errors %}
+                            {{ form.name(class="form-control is-invalid") }}
+                            <div class="invalid-feedback">
+                                {% for error in form.name.errors %}
+                                    <span>{{ error }}</span>
+                                {% endfor %}
+                            </div>
+                        {% else %}
+                            {{ form.name(class="form-control") }}
+                        {% endif %}
+                        <small class="form-text text-muted">比赛名称应该简洁明了，能够清晰表达比赛主题。</small>
+                    </div>
+                    <div class="mb-3">
+                        {{ form.description.label(class="form-label") }}
+                        {% if form.description.errors %}
+                            {{ form.description(class="form-control is-invalid") }}
+                            <div class="invalid-feedback">
+                                {% for error in form.description.errors %}
+                                    <span>{{ error }}</span>
+                                {% endfor %}
+                            </div>
+                        {% else %}
+                            {{ form.description(class="form-control", rows="5") }}
+                        {% endif %}
+                        <small class="form-text text-muted">详细描述比赛的规则、要求和评分标准。</small>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                {{ form.start_date.label(class="form-label") }}
+                                {% if form.start_date.errors %}
+                                    {{ form.start_date(class="form-control is-invalid", type="datetime-local") }}
+                                    <div class="invalid-feedback">
+                                        {% for error in form.start_date.errors %}
+                                            <span>{{ error }}</span>
+                                        {% endfor %}
+                                    </div>
+                                {% else %}
+                                    {{ form.start_date(class="form-control", type="datetime-local") }}
+                                {% endif %}
+                                <small class="form-text text-muted">请选择比赛开始的日期和时间</small>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                {{ form.end_date.label(class="form-label") }}
+                                {% if form.end_date.errors %}
+                                    {{ form.end_date(class="form-control is-invalid", type="datetime-local") }}
+                                    <div class="invalid-feedback">
+                                        {% for error in form.end_date.errors %}
+                                            <span>{{ error }}</span>
+                                        {% endfor %}
+                                    </div>
+                                {% else %}
+                                    {{ form.end_date(class="form-control", type="datetime-local") }}
+                                {% endif %}
+                                <small class="form-text text-muted">请选择比赛结束的日期和时间</small>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="d-grid gap-2">
+                        {{ form.submit(class="btn btn-primary") }}
+                        <a href="{{ url_for('competition.competition_list') }}" class="btn btn-outline-secondary">取消</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock content %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const startDateInput = document.getElementById('start_date');
+    const endDateInput = document.getElementById('end_date');
+    
+    // 确保结束时间不早于开始时间
+    startDateInput.addEventListener('change', function() {
+        // 如果当前结束时间早于新的开始时间，则更新结束时间为开始时间
+        if (endDateInput.value && endDateInput.value < this.value) {
+            endDateInput.value = this.value;
+        }
+    });
+    
+    // 表单提交前验证
+    document.querySelector('form').addEventListener('submit', function(e) {
+        if (startDateInput.value === '' || endDateInput.value === '') {
+            e.preventDefault();
+            alert('请选择开始时间和结束时间');
+            return false;
+        }
+        
+        if (new Date(startDateInput.value) > new Date(endDateInput.value)) {
+            e.preventDefault();
+            alert('结束时间必须晚于开始时间');
+            return false;
+        }
+        
+        return true;
+    });
+});
+</script>
+{% endblock scripts %} 

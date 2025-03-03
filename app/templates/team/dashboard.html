@@ -1,0 +1,167 @@
+{% extends "layout.html" %}
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <div class="card mb-4">
+            <div class="card-header">
+                <h3 class="card-title mb-0">团队统计数据</h3>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="card">
+                            <div class="card-body">
+                                <h5 class="card-title">团队成员分布</h5>
+                                <canvas id="teamMembersChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="card">
+                            <div class="card-body">
+                                <h5 class="card-title">团队活跃度</h5>
+                                <canvas id="teamActivityChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 新增用户图表 -->
+<div class="row">
+    <div class="col-12">
+        <div class="card mb-4">
+            <div class="card-header">
+                <h3 class="card-title mb-0">用户参与情况</h3>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>用户名</th>
+                                <th>加入的团队</th>
+                                <th>加入时间</th>
+                                <th>操作</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for item in user_team_data %}
+                                <tr>
+                                    <td>{{ item.username }}</td>
+                                    <td>{{ item.team_name }}</td>
+                                    <td>{{ item.date_joined.strftime('%Y-%m-%d %H:%M') }}</td>
+                                    <td>
+                                        <a href="{{ url_for('team.team_detail', team_id=item.team_id) }}" class="btn btn-sm btn-outline-primary">
+                                            查看团队
+                                        </a>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title mb-0">团队详细数据</h3>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>团队名称</th>
+                                <th>成员数量</th>
+                                <th>领导数量</th>
+                                <th>创建时间</th>
+                                <th>操作</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for team_data in team_data %}
+                                <tr>
+                                    <td>{{ team_data.name }}</td>
+                                    <td>{{ team_data.member_count }}</td>
+                                    <td>{{ team_data.leader_count }}</td>
+                                    <td>{{ team_data.created_at.strftime('%Y-%m-%d') }}</td>
+                                    <td>
+                                        <a href="{{ url_for('team.team_detail', team_id=team_data.id) }}" class="btn btn-sm btn-outline-primary">
+                                            查看详情
+                                        </a>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock content %}
+
+{% block scripts %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // 团队成员分布图表
+    const membersCtx = document.getElementById('teamMembersChart').getContext('2d');
+    const membersChart = new Chart(membersCtx, {
+        type: 'pie',
+        data: {
+            labels: {{ team_names|tojson }},
+            datasets: [{
+                data: {{ member_counts|tojson }},
+                backgroundColor: [
+                    '#FF6384',
+                    '#36A2EB',
+                    '#FFCE56',
+                    '#4BC0C0',
+                    '#9966FF'
+                ]
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: {
+                    position: 'bottom'
+                }
+            }
+        }
+    });
+
+    // 团队活跃度图表
+    const activityCtx = document.getElementById('teamActivityChart').getContext('2d');
+    const activityChart = new Chart(activityCtx, {
+        type: 'bar',
+        data: {
+            labels: {{ team_names|tojson }},
+            datasets: [{
+                label: '活跃度指数',
+                data: {{ activity_scores|tojson }},
+                backgroundColor: '#36A2EB'
+            }]
+        },
+        options: {
+            responsive: true,
+            scales: {
+                y: {
+                    beginAtZero: true
+                }
+            }
+        }
+    });
+});
+</script>
+{% endblock scripts %}

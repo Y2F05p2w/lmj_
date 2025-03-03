@@ -1,0 +1,547 @@
+{% extends "layout.html" %}
+
+{% block styles %}
+<style>
+    /* 全局样式 */
+    body {
+        background-color: #f8f9ff;
+    }
+    
+    /* 主题颜色配置 */
+    :root {
+        --primary-color: #9b6bff;
+        --primary-light: #d7c9ff;
+        --secondary-color: #ff7eb3;
+        --secondary-light: #ffd2e6;
+        --accent-color: #66e0ff;
+        --accent-light: #d3f0ff;
+        --text-dark: #6a5a8c;
+        --text-muted: #9490a7;
+    }
+    
+    /* 页面容器 */
+    .cute-container {
+        padding: 2rem 1rem;
+        position: relative;
+    }
+    
+    /* 顶部装饰 */
+    .top-decoration {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 15px;
+        background: linear-gradient(90deg, var(--primary-color), var(--secondary-color), var(--accent-color));
+        border-radius: 0 0 15px 15px;
+        z-index: 10;
+    }
+    
+    /* 浮动装饰元素 */
+    .floating-item {
+        position: absolute;
+        border-radius: 50%;
+        animation: float 6s ease-in-out infinite;
+        z-index: -1;
+        opacity: 0.6;
+    }
+    
+    .floating-item.item1 {
+        width: 80px;
+        height: 80px;
+        background-color: var(--primary-light);
+        top: 10%;
+        left: 5%;
+        animation-delay: 0s;
+    }
+    
+    .floating-item.item2 {
+        width: 60px;
+        height: 60px;
+        background-color: var(--secondary-light);
+        top: 20%;
+        right: 8%;
+        animation-delay: -1s;
+    }
+    
+    .floating-item.item3 {
+        width: 40px;
+        height: 40px;
+        background-color: var(--accent-light);
+        bottom: 15%;
+        left: 15%;
+        animation-delay: -2s;
+    }
+    
+    .floating-item.item4 {
+        width: 50px;
+        height: 50px;
+        background-color: var(--primary-light);
+        bottom: 25%;
+        right: 10%;
+        animation-delay: -3s;
+    }
+    
+    @keyframes float {
+        0% { transform: translateY(0) rotate(0deg); }
+        50% { transform: translateY(-15px) rotate(5deg); }
+        100% { transform: translateY(0) rotate(0deg); }
+    }
+    
+    /* 欢迎区域 */
+    .welcome-section {
+        background: linear-gradient(145deg, #fff6fb, #f0f6ff);
+        border-radius: 30px;
+        padding: 3rem 2rem;
+        margin-bottom: 3rem;
+        position: relative;
+        overflow: hidden;
+        box-shadow: 0 15px 30px rgba(155, 107, 255, 0.1);
+    }
+    
+    .welcome-section::before {
+        content: "";
+        position: absolute;
+        width: 200px;
+        height: 200px;
+        background: radial-gradient(circle, var(--primary-light) 0%, rgba(255,255,255,0) 70%);
+        border-radius: 50%;
+        top: -50px;
+        left: -50px;
+        opacity: 0.6;
+    }
+    
+    .welcome-section::after {
+        content: "";
+        position: absolute;
+        width: 150px;
+        height: 150px;
+        background: radial-gradient(circle, var(--secondary-light) 0%, rgba(255,255,255,0) 70%);
+        border-radius: 50%;
+        bottom: -30px;
+        right: -30px;
+        opacity: 0.6;
+    }
+    
+    .welcome-title {
+        font-size: 2.8rem;
+        font-weight: 700;
+        color: var(--primary-color);
+        margin-bottom: 1.5rem;
+        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.05);
+        position: relative;
+        display: inline-block;
+    }
+    
+    .welcome-title::after {
+        content: "✨";
+        position: absolute;
+        top: -10px;
+        right: -30px;
+        font-size: 1.5rem;
+        animation: sparkle 2s infinite;
+    }
+    
+    @keyframes sparkle {
+        0%, 100% { opacity: 0.5; transform: scale(1); }
+        50% { opacity: 1; transform: scale(1.2); }
+    }
+    
+    .welcome-subtitle {
+        font-size: 1.3rem;
+        color: var(--text-muted);
+        margin-bottom: 2.5rem;
+    }
+    
+    .wave-container {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        overflow: hidden;
+        line-height: 0;
+        transform: rotate(180deg);
+    }
+    
+    .wave-container svg {
+        position: relative;
+        display: block;
+        width: calc(130% + 1.3px);
+        height: 70px;
+    }
+    
+    .wave-container .shape-fill {
+        fill: #FFFFFF;
+        opacity: 0.2;
+    }
+    
+    /* 卡片样式 */
+    .feature-card {
+        background: white;
+        border-radius: 25px;
+        overflow: hidden;
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.03);
+        transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        position: relative;
+        z-index: 1;
+        margin-bottom: 30px;
+        border: 2px solid transparent;
+    }
+    
+    .feature-card:hover {
+        transform: translateY(-10px);
+        box-shadow: 0 20px 35px rgba(0, 0, 0, 0.06);
+        border-color: var(--primary-light);
+    }
+    
+    .feature-card::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(160deg, rgba(255,255,255,0.9) 0%, rgba(255,255,255,0.3) 100%);
+        z-index: -1;
+    }
+    
+    .card-decoration {
+        position: absolute;
+        top: 0;
+        right: 0;
+        width: 120px;
+        height: 120px;
+        border-radius: 0 0 0 120px;
+        opacity: 0.1;
+        z-index: 0;
+    }
+    
+    .feature-card:nth-child(1) .card-decoration {
+        background-color: var(--primary-color);
+    }
+    
+    .feature-card:nth-child(2) .card-decoration {
+        background-color: var(--secondary-color);
+    }
+    
+    .feature-card:nth-child(3) .card-decoration {
+        background-color: var(--accent-color);
+    }
+    
+    .feature-card .card-body {
+        padding: 2.5rem;
+        position: relative;
+        z-index: 2;
+    }
+    
+    .icon-wrapper {
+        width: 75px;
+        height: 75px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 20px;
+        margin-bottom: 1.5rem;
+        position: relative;
+        overflow: hidden;
+        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.05);
+    }
+    
+    .icon-wrapper::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(145deg, rgba(255,255,255,0.4) 0%, rgba(255,255,255,0) 100%);
+        z-index: 1;
+    }
+    
+    .icon-wrapper::after {
+        content: "";
+        position: absolute;
+        width: 150%;
+        height: 150%;
+        background: linear-gradient(90deg, transparent, rgba(255,255,255,0.6), transparent);
+        transform: rotate(45deg);
+        top: -50%;
+        left: -150%;
+        transition: all 0.6s ease;
+    }
+    
+    .feature-card:hover .icon-wrapper::after {
+        left: 150%;
+    }
+    
+    .primary-icon {
+        background: linear-gradient(45deg, #9b6bff, #b693ff);
+    }
+    
+    .secondary-icon {
+        background: linear-gradient(45deg, #ff7eb3, #ff9cc7);
+    }
+    
+    .accent-icon {
+        background: linear-gradient(45deg, #66e0ff, #94ebff);
+    }
+    
+    .feature-icon {
+        color: white;
+        font-size: 30px;
+        position: relative;
+        z-index: 2;
+    }
+    
+    .feature-title {
+        font-size: 1.5rem;
+        font-weight: 700;
+        margin-bottom: 1rem;
+        transition: all 0.3s ease;
+    }
+    
+    .primary-title { color: var(--primary-color); }
+    .secondary-title { color: var(--secondary-color); }
+    .accent-title { color: var(--accent-color); }
+    
+    .feature-text {
+        color: var(--text-muted);
+        line-height: 1.7;
+        margin-bottom: 1.5rem;
+    }
+    
+    /* 按钮样式 */
+    .cute-btn {
+        padding: 0.75rem 1.8rem;
+        border-radius: 50px;
+        font-weight: 600;
+        border: none;
+        position: relative;
+        overflow: hidden;
+        z-index: 1;
+        transition: all 0.4s ease;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    .cute-btn::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(255, 255, 255, 0.1);
+        z-index: -1;
+        transform: scaleX(0);
+        transform-origin: right;
+        transition: transform 0.4s ease;
+    }
+    
+    .cute-btn:hover::before {
+        transform: scaleX(1);
+        transform-origin: left;
+    }
+    
+    .cute-btn i {
+        margin-right: 0.5rem;
+        transition: transform 0.3s ease;
+    }
+    
+    .cute-btn:hover i {
+        transform: translateX(3px);
+    }
+    
+    .btn-primary {
+        background: linear-gradient(45deg, var(--primary-color), var(--primary-color) 30%, #b693ff);
+        color: white;
+        box-shadow: 0 8px 20px rgba(155, 107, 255, 0.3);
+    }
+    
+    .btn-primary:hover {
+        box-shadow: 0 10px 25px rgba(155, 107, 255, 0.4);
+        color: white;
+    }
+    
+    .btn-secondary {
+        background: white;
+        color: var(--primary-color);
+        border: 2px solid var(--primary-light);
+        box-shadow: 0 8px 20px rgba(155, 107, 255, 0.1);
+    }
+    
+    .btn-secondary:hover {
+        background: var(--primary-light);
+        color: var(--primary-color);
+        box-shadow: 0 10px 25px rgba(155, 107, 255, 0.2);
+    }
+    
+    /* 底部卡片 */
+    .bottom-card {
+        background: linear-gradient(145deg, #fff, #f9f5ff);
+        border-radius: 25px;
+        padding: 2.5rem;
+        position: relative;
+        overflow: hidden;
+        box-shadow: 0 15px 30px rgba(155, 107, 255, 0.08);
+        border: 2px dashed var(--primary-light);
+    }
+    
+    .bottom-card::before {
+        content: "";
+        position: absolute;
+        width: 150px;
+        height: 150px;
+        background: radial-gradient(circle, var(--primary-light) 0%, rgba(255,255,255,0) 70%);
+        border-radius: 50%;
+        bottom: -30px;
+        left: -30px;
+        opacity: 0.4;
+    }
+    
+    .bottom-card::after {
+        content: "";
+        position: absolute;
+        width: 150px;
+        height: 150px;
+        background: radial-gradient(circle, var(--accent-light) 0%, rgba(255,255,255,0) 70%);
+        border-radius: 50%;
+        top: -30px;
+        right: -30px;
+        opacity: 0.4;
+    }
+    
+    .bottom-title {
+        font-size: 1.8rem;
+        font-weight: 700;
+        color: var(--primary-color);
+        margin-bottom: 1rem;
+        position: relative;
+        display: inline-block;
+    }
+    
+    .bottom-title::after {
+        content: "🌟";
+        position: absolute;
+        top: -5px;
+        right: -30px;
+        font-size: 1.3rem;
+    }
+    
+    .bottom-text {
+        color: var(--text-muted);
+        font-size: 1.1rem;
+        line-height: 1.7;
+        margin-bottom: 1.5rem;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="cute-container">
+    <div class="top-decoration"></div>
+    
+    <!-- 浮动装饰元素 -->
+    <div class="floating-item item1"></div>
+    <div class="floating-item item2"></div>
+    <div class="floating-item item3"></div>
+    <div class="floating-item item4"></div>
+    
+    <!-- 欢迎区域 -->
+    <div class="welcome-section text-center mb-5">
+        <h1 class="welcome-title">欢迎来到网络安全协会</h1>
+        <p class="welcome-subtitle">这是一个功能完整的社团管理平台，帮助您更好地管理社团活动，提升团队协作效率</p>
+        
+        {% if not current_user.is_authenticated %}
+            <div class="mt-5">
+                <a class="cute-btn btn-primary me-3" href="{{ url_for('auth.register') }}">
+                    <i class="fas fa-user-plus"></i> 立即注册
+                </a>
+                <a class="cute-btn btn-secondary" href="{{ url_for('auth.login') }}">
+                    <i class="fas fa-sign-in-alt"></i> 登录账号
+                </a>
+            </div>
+        {% else %}
+            <div class="mt-5">
+                <a class="cute-btn btn-primary" href="{{ url_for('team.team_list') }}">
+                    <i class="fas fa-th-large"></i> 查看我的团队
+                </a>
+            </div>
+        {% endif %}
+        
+        <div class="wave-container">
+            <svg data-name="Layer 1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 120" preserveAspectRatio="none">
+                <path d="M321.39,56.44c58-10.79,114.16-30.13,172-41.86,82.39-16.72,168.19-17.73,250.45-.39C823.78,31,906.67,72,985.66,92.83c70.05,18.48,146.53,26.09,214.34,3V0H0V27.35A600.21,600.21,0,0,0,321.39,56.44Z" class="shape-fill"></path>
+            </svg>
+        </div>
+    </div>
+    
+    <!-- 功能区域 -->
+    <div class="row g-4 mb-5">
+        <!-- 团队管理 -->
+        <div class="col-md-4">
+            <div class="feature-card h-100">
+                <div class="card-decoration"></div>
+                <div class="card-body text-center">
+                    <div class="icon-wrapper primary-icon mx-auto">
+                        <i class="fas fa-users feature-icon"></i>
+                    </div>
+                    <h5 class="feature-title primary-title">团队管理</h5>
+                    <p class="feature-text">轻松创建和管理团队，组织成员分组，实时查看团队统计数据，记录团队活动成果。</p>
+                    <a href="{{ url_for('team.team_list') }}" class="cute-btn btn-primary">
+                        <i class="fas fa-arrow-right"></i> 进入团队
+                    </a>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 比赛管理 -->
+        <div class="col-md-4">
+            <div class="feature-card h-100">
+                <div class="card-decoration"></div>
+                <div class="card-body text-center">
+                    <div class="icon-wrapper secondary-icon mx-auto">
+                        <i class="fas fa-trophy feature-icon"></i>
+                    </div>
+                    <h5 class="feature-title secondary-title">比赛管理</h5>
+                    <p class="feature-text">高效记录比赛成绩，查看实时排名，生成精美的数据可视化图表和全面的分析报告。</p>
+                    <a href="{{ url_for('competition.competition_list') }}" class="cute-btn btn-primary">
+                        <i class="fas fa-arrow-right"></i> 进入比赛
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- 数据分析 -->
+        <div class="col-md-4">
+            <div class="feature-card h-100">
+                <div class="card-decoration"></div>
+                <div class="card-body text-center">
+                    <div class="icon-wrapper accent-icon mx-auto">
+                        <i class="fas fa-chart-line feature-icon"></i>
+                    </div>
+                    <h5 class="feature-title accent-title">数据分析</h5>
+                    <p class="feature-text">全面的数据分析功能，实时统计和可视化展示，帮助您更好地了解社团发展动态。</p>
+                    <a href="{{ url_for('analytics.analytics_dashboard') }}" class="cute-btn btn-primary">
+                        <i class="fas fa-arrow-right"></i> 查看分析
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 底部区域 -->
+    <div class="bottom-card text-center">
+        <h3 class="bottom-title">开启您的社团管理之旅</h3>
+        <p class="bottom-text">加入我们，享受高效便捷的社团管理体验，让组织管理更轻松，团队协作更愉快！</p>
+        <a href="{{ url_for('main.about') }}" class="cute-btn btn-primary">
+            <i class="fas fa-info-circle"></i> 了解更多功能
+        </a>
+    </div>
+</div>
+{% endblock content %}
+
+{% block scripts %}
+{{ super() }}
+{% endblock %} 

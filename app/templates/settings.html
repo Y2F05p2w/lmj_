@@ -1,0 +1,213 @@
+{% extends "layout.html" %}
+
+{% block styles %}
+<style>
+    .settings-container {
+        max-width: 800px;
+        margin: 0 auto;
+    }
+    
+    .settings-card {
+        background: white;
+        border-radius: 20px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+        margin-bottom: 2rem;
+    }
+    
+    .settings-header {
+        background: linear-gradient(135deg, var(--primary-color), var(--nav-light));
+        color: white;
+        padding: 1.5rem;
+        border-radius: 20px 20px 0 0;
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+    }
+    
+    .settings-header i {
+        font-size: 1.5rem;
+    }
+    
+    .settings-body {
+        padding: 2rem;
+    }
+    
+    .settings-section {
+        margin-bottom: 2rem;
+    }
+    
+    .settings-section:last-child {
+        margin-bottom: 0;
+    }
+    
+    .settings-title {
+        font-size: 1.2rem;
+        font-weight: 600;
+        color: var(--primary-color);
+        margin-bottom: 1rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    
+    .form-group {
+        margin-bottom: 1.5rem;
+    }
+    
+    .form-group label {
+        font-weight: 500;
+        color: var(--text-dark);
+        margin-bottom: 0.5rem;
+    }
+    
+    .form-control {
+        border-radius: 10px;
+        padding: 0.8rem 1rem;
+        border: 2px solid rgba(0, 0, 0, 0.05);
+        transition: all 0.3s ease;
+    }
+    
+    .form-control:focus {
+        border-color: var(--primary-light);
+        box-shadow: 0 0 0 3px rgba(155, 107, 255, 0.15);
+    }
+    
+    .btn-save {
+        background: linear-gradient(45deg, var(--primary-color), var(--nav-light));
+        color: white;
+        border: none;
+        padding: 0.8rem 2rem;
+        border-radius: 50px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+    }
+    
+    .btn-save:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(155, 107, 255, 0.3);
+    }
+    
+    .notification-settings {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 1rem;
+    }
+    
+    .notification-item {
+        background: #f8f9ff;
+        padding: 1rem;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
+    
+    .notification-item label {
+        margin: 0;
+        font-weight: 500;
+    }
+    
+    .form-switch {
+        padding-left: 2.5rem;
+    }
+    
+    .form-switch .form-check-input {
+        width: 3rem;
+        height: 1.5rem;
+        margin-left: -2.5rem;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="settings-container">
+    <div class="settings-card">
+        <div class="settings-header">
+            <i class="fas fa-cog"></i>
+            <h2 class="mb-0">账户设置</h2>
+        </div>
+        <div class="settings-body">
+            <form method="POST" action="{{ url_for('auth.settings') }}">
+                {{ form.hidden_tag() }}
+                
+                <div class="settings-section">
+                    <h3 class="settings-title">
+                        <i class="fas fa-user"></i>
+                        基本信息
+                    </h3>
+                    <div class="form-group">
+                        {{ form.username.label }}
+                        {{ form.username(class="form-control") }}
+                        {% if form.username.errors %}
+                            {% for error in form.username.errors %}
+                                <div class="text-danger">{{ error }}</div>
+                            {% endfor %}
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <div class="settings-section">
+                    <h3 class="settings-title">
+                        <i class="fas fa-bell"></i>
+                        通知设置
+                    </h3>
+                    <div class="notification-settings">
+                        <div class="notification-item">
+                            <label>团队通知</label>
+                            {{ form.team_notifications(class="form-check-input") }}
+                        </div>
+                        <div class="notification-item">
+                            <label>比赛通知</label>
+                            {{ form.competition_notifications(class="form-check-input") }}
+                        </div>
+                        <div class="notification-item">
+                            <label>系统通知</label>
+                            {{ form.system_notifications(class="form-check-input") }}
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="settings-section">
+                    <h3 class="settings-title">
+                        <i class="fas fa-lock"></i>
+                        安全设置
+                    </h3>
+                    <div class="form-group">
+                        {{ form.current_password.label }}
+                        {{ form.current_password(class="form-control") }}
+                        {% if form.current_password.errors %}
+                            {% for error in form.current_password.errors %}
+                                <div class="text-danger">{{ error }}</div>
+                            {% endfor %}
+                        {% endif %}
+                    </div>
+                    <div class="form-group">
+                        {{ form.new_password.label }}
+                        {{ form.new_password(class="form-control") }}
+                        {% if form.new_password.errors %}
+                            {% for error in form.new_password.errors %}
+                                <div class="text-danger">{{ error }}</div>
+                            {% endfor %}
+                        {% endif %}
+                    </div>
+                    <div class="form-group">
+                        {{ form.confirm_password.label }}
+                        {{ form.confirm_password(class="form-control") }}
+                        {% if form.confirm_password.errors %}
+                            {% for error in form.confirm_password.errors %}
+                                <div class="text-danger">{{ error }}</div>
+                            {% endfor %}
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <div class="text-center">
+                    <button type="submit" class="btn btn-save">
+                        <i class="fas fa-save"></i> 保存更改
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock content %} 

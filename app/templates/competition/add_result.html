@@ -1,0 +1,96 @@
+{% extends "layout.html" %}
+{% block content %}
+<div class="row">
+    <div class="col-md-8 offset-md-2">
+        <div class="card">
+            <div class="card-header bg-primary text-white">
+                <h3 class="card-title mb-0">提交比赛成绩</h3>
+            </div>
+            <div class="card-body">
+                <div class="mb-4">
+                    <h5>比赛信息</h5>
+                    <p class="mb-1"><strong>比赛名称：</strong>{{ competition.name }}</p>
+                    <p class="mb-1"><strong>开始时间：</strong>{{ competition.start_date.strftime('%Y-%m-%d %H:%M') }}</p>
+                    <p class="mb-1"><strong>结束时间：</strong>{{ competition.end_date.strftime('%Y-%m-%d %H:%M') }}</p>
+                    <p class="mb-0"><strong>当前参与人数：</strong>{{ competition.results|length }}</p>
+                </div>
+
+                <form method="POST" action="">
+                    {{ form.hidden_tag() }}
+                    {{ form.user_id(style="display: none;") }}
+                    
+                    <div class="alert alert-info mb-4">
+                        <i class="fas fa-info-circle"></i> 您正在以 <strong>{{ current_user.username }}</strong> 的身份提交成绩
+                    </div>
+                    
+                    <div class="mb-3">
+                        {{ form.score.label(class="form-label") }}
+                        {% if form.score.errors %}
+                            {{ form.score(class="form-control is-invalid") }}
+                            <div class="invalid-feedback">
+                                {% for error in form.score.errors %}
+                                    <span>{{ error }}</span>
+                                {% endfor %}
+                            </div>
+                        {% else %}
+                            {{ form.score(class="form-control") }}
+                        {% endif %}
+                        <small class="form-text text-muted">请输入0-100之间的分数。</small>
+                    </div>
+                    <div class="mb-3">
+                        {{ form.remarks.label(class="form-label") }}
+                        {% if form.remarks.errors %}
+                            {{ form.remarks(class="form-control is-invalid") }}
+                            <div class="invalid-feedback">
+                                {% for error in form.remarks.errors %}
+                                    <span>{{ error }}</span>
+                                {% endfor %}
+                            </div>
+                        {% else %}
+                            {{ form.remarks(class="form-control", rows="3") }}
+                        {% endif %}
+                        <small class="form-text text-muted">可以添加一些备注说明（可选）。</small>
+                    </div>
+                    <div class="d-grid gap-2">
+                        {{ form.submit(class="btn btn-primary") }}
+                        <a href="{{ url_for('competition.competition_detail', competition_id=competition.id) }}" 
+                           class="btn btn-outline-secondary">取消</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        {% if competition.results %}
+            <div class="card mt-4">
+                <div class="card-header">
+                    <h5 class="mb-0">当前排名</h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-sm">
+                            <thead>
+                                <tr>
+                                    <th>排名</th>
+                                    <th>参与者</th>
+                                    <th>得分</th>
+                                    <th>提交时间</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for result in competition.results|sort(attribute='score', reverse=true) %}
+                                    <tr>
+                                        <td>{{ loop.index }}</td>
+                                        <td>{{ result.user.username }}</td>
+                                        <td>{{ result.score }}</td>
+                                        <td>{{ result.date_submitted.strftime('%Y-%m-%d %H:%M') }}</td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock content %} 

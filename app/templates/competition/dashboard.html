@@ -1,0 +1,178 @@
+{% extends "layout.html" %}
+{% block content %}
+<div class="row mb-4">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-header bg-primary text-white">
+                <h3 class="card-title mb-0">比赛数据统计</h3>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-3">
+                        <div class="card bg-light">
+                            <div class="card-body text-center">
+                                <h1 class="display-4">{{ competition_data.total_competitions }}</h1>
+                                <p class="text-muted mb-0">总比赛数</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card bg-light">
+                            <div class="card-body text-center">
+                                <h1 class="display-4">{{ competition_data.active_competitions }}</h1>
+                                <p class="text-muted mb-0">进行中的比赛</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card bg-light">
+                            <div class="card-body text-center">
+                                <h1 class="display-4">{{ competition_data.total_participants }}</h1>
+                                <p class="text-muted mb-0">总参与人次</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card bg-light">
+                            <div class="card-body text-center">
+                                <h1 class="display-4">{{ "%.1f"|format(competition_data.average_score) }}</h1>
+                                <p class="text-muted mb-0">平均分数</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-6">
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5 class="card-title mb-0">比赛参与度趋势</h5>
+            </div>
+            <div class="card-body">
+                <canvas id="participationTrendChart"></canvas>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5 class="card-title mb-0">成绩分布</h5>
+            </div>
+            <div class="card-body">
+                <canvas id="scoreDistributionChart"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">最近比赛成绩排名</h5>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>比赛名称</th>
+                                <th>参与人数</th>
+                                <th>平均分</th>
+                                <th>最高分</th>
+                                <th>最低分</th>
+                                <th>操作</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for comp in competition_data.recent_competitions %}
+                                <tr>
+                                    <td>{{ comp.name }}</td>
+                                    <td>{{ comp.participant_count }}</td>
+                                    <td>{{ "%.1f"|format(comp.average_score) }}</td>
+                                    <td>{{ comp.highest_score }}</td>
+                                    <td>{{ comp.lowest_score }}</td>
+                                    <td>
+                                        <a href="{{ url_for('competition.competition_detail', competition_id=comp.id) }}" 
+                                           class="btn btn-sm btn-outline-primary">
+                                            查看详情
+                                        </a>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock content %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // 参与度趋势图表
+    const participationCtx = document.getElementById('participationTrendChart').getContext('2d');
+    new Chart(participationCtx, {
+        type: 'line',
+        data: {
+            labels: {{ competition_data.trend_dates|tojson }},
+            datasets: [{
+                label: '参与人数',
+                data: {{ competition_data.trend_counts|tojson }},
+                borderColor: '#36A2EB',
+                tension: 0.1,
+                fill: false
+            }]
+        },
+        options: {
+            responsive: true,
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: {
+                        stepSize: 1
+                    }
+                }
+            }
+        }
+    });
+
+    // 成绩分布图表
+    const distributionCtx = document.getElementById('scoreDistributionChart').getContext('2d');
+    new Chart(distributionCtx, {
+        type: 'bar',
+        data: {
+            labels: ['0-20', '21-40', '41-60', '61-80', '81-100'],
+            datasets: [{
+                label: '人数',
+                data: {{ competition_data.score_distribution|tojson }},
+                backgroundColor: [
+                    '#FF6384',
+                    '#36A2EB',
+                    '#FFCE56',
+                    '#4BC0C0',
+                    '#9966FF'
+                ]
+            }]
+        },
+        options: {
+            responsive: true,
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: {
+                        stepSize: 1
+                    }
+                }
+            }
+        }
+    });
+});
+</script>
+{% endblock scripts %} 

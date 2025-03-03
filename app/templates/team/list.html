@@ -1,0 +1,45 @@
+{% extends "layout.html" %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2>团队列表</h2>
+    {% if current_user.is_authenticated %}
+        <a href="{{ url_for('team.create_team') }}" class="btn btn-primary">
+            <i class="fas fa-plus"></i> 创建新团队
+        </a>
+    {% endif %}
+</div>
+
+<div class="row">
+    {% for team in teams %}
+        <div class="col-md-4 mb-4">
+            <div class="card h-100">
+                <div class="card-body">
+                    <h5 class="card-title">{{ team.name }}</h5>
+                    <p class="card-text">{{ team.description[:150] }}...</p>
+                    <div class="d-flex justify-content-between align-items-center">
+                        <small class="text-muted">成员数：{{ team.members|length }}</small>
+                        <a href="{{ url_for('team.team_detail', team_id=team.id) }}" class="btn btn-outline-primary btn-sm">查看详情</a>
+                    </div>
+                </div>
+                <div class="card-footer text-muted">
+                    创建时间：{{ team.created_at.strftime('%Y-%m-%d') }}
+                </div>
+            </div>
+        </div>
+    {% else %}
+        <div class="col-12">
+            <div class="alert alert-info" role="alert">
+                目前还没有任何团队。{% if current_user.is_authenticated %}快来创建第一个团队吧！{% endif %}
+            </div>
+        </div>
+    {% endfor %}
+</div>
+
+{% if teams %}
+<div class="mt-4">
+    <a href="{{ url_for('team.team_dashboard') }}" class="btn btn-info">
+        <i class="fas fa-chart-bar"></i> 查看团队统计
+    </a>
+</div>
+{% endif %}
+{% endblock content %} 

@@ -1,0 +1,151 @@
+{% extends "layout.html" %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2>比赛列表</h2>
+    {% if current_user.is_authenticated %}
+        <a href="{{ url_for('competition.create_competition') }}" class="btn btn-primary">
+            <i class="fas fa-plus"></i> 创建新比赛
+        </a>
+    {% endif %}
+</div>
+
+<div class="row">
+    <div class="col-md-8">
+        {% for competition in competitions %}
+            <div class="card mb-4 competition-card">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div>
+                            <h3 class="card-title">{{ competition.name }}</h3>
+                            <p class="card-text text-muted">{{ competition.description[:200] }}...</p>
+                        </div>
+                        <span class="badge {% if competition.end_date < now %}bg-secondary{% elif competition.start_date > now %}bg-info{% else %}bg-success{% endif %}">
+                            {% if competition.end_date < now %}
+                                已结束
+                            {% elif competition.start_date > now %}
+                                即将开始
+                            {% else %}
+                                进行中
+                            {% endif %}
+                        </span>
+                    </div>
+                    <div class="mt-3">
+                        <div class="row g-2">
+                            <div class="col-auto">
+                                <small class="text-muted">
+                                    <i class="fas fa-calendar-alt"></i>
+                                    开始：{{ competition.start_date.strftime('%Y-%m-%d') }}
+                                </small>
+                            </div>
+                            <div class="col-auto">
+                                <small class="text-muted">
+                                    <i class="fas fa-calendar-check"></i>
+                                    结束：{{ competition.end_date.strftime('%Y-%m-%d') }}
+                                </small>
+                            </div>
+                            <div class="col-auto">
+                                <small class="text-muted">
+                                    <i class="fas fa-users"></i>
+                                    参与人数：{{ competition.results|length }}
+                                </small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-footer bg-transparent">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div class="btn-group">
+                            <a href="{{ url_for('competition.competition_detail', competition_id=competition.id) }}" class="btn btn-outline-primary btn-sm">
+                                <i class="fas fa-info-circle"></i> 详情
+                            </a>
+                            {% if current_user.is_authenticated and competition.end_date >= now %}
+                                <a href="{{ url_for('competition.add_result', competition_id=competition.id) }}" class="btn btn-outline-success btn-sm">
+                                    <i class="fas fa-plus-circle"></i> 提交成绩
+                                </a>
+                            {% endif %}
+                        </div>
+                        <small class="text-muted">创建于 {{ competition.created_at.strftime('%Y-%m-%d') }}</small>
+                    </div>
+                </div>
+            </div>
+        {% else %}
+            <div class="alert alert-info" role="alert">
+                <i class="fas fa-info-circle"></i> 目前还没有任何比赛。
+                {% if current_user.is_authenticated %}
+                    <a href="{{ url_for('competition.create_competition') }}" class="alert-link">创建第一个比赛</a>
+                {% endif %}
+            </div>
+        {% endfor %}
+    </div>
+
+    <div class="col-md-4">
+        <div class="card mb-4">
+            <div class="card-header bg-primary text-white">
+                <h5 class="card-title mb-0"><i class="fas fa-chart-line"></i> 比赛统计</h5>
+            </div>
+            <div class="card-body">
+                <div class="list-group list-group-flush">
+                    <div class="list-group-item d-flex justify-content-between align-items-center">
+                        进行中的比赛
+                        <span class="badge bg-primary rounded-pill">{{ active_competitions }}</span>
+                    </div>
+                    <div class="list-group-item d-flex justify-content-between align-items-center">
+                        已结束的比赛
+                        <span class="badge bg-secondary rounded-pill">{{ finished_competitions }}</span>
+                    </div>
+                    <div class="list-group-item d-flex justify-content-between align-items-center">
+                        即将开始的比赛
+                        <span class="badge bg-info rounded-pill">{{ upcoming_competitions }}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-header bg-success text-white">
+                <h5 class="card-title mb-0"><i class="fas fa-trophy"></i> 最新成绩</h5>
+            </div>
+            <div class="card-body p-0">
+                <div class="list-group list-group-flush">
+                    {% for result in latest_results %}
+                        <a href="{{ url_for('competition.competition_detail', competition_id=result.competition.id) }}" 
+                           class="list-group-item list-group-item-action">
+                            <div class="d-flex w-100 justify-content-between">
+                                <h6 class="mb-1">{{ result.user.username }}</h6>
+                                <small>{{ result.score }}</small>
+                            </div>
+                            <small class="text-muted">{{ result.competition.name }}</small>
+                        </a>
+                    {% else %}
+                        <div class="list-group-item text-center text-muted">
+                            暂无成绩记录
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% if competitions %}
+    <div class="text-center mt-4">
+        <a href="{{ url_for('competition.competition_dashboard') }}" class="btn btn-info">
+            <i class="fas fa-chart-bar"></i> 查看完整统计
+        </a>
+    </div>
+{% endif %}
+{% endblock content %}
+
+{% block styles %}
+<style>
+.competition-card {
+    transition: transform 0.2s;
+    border: none;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+.competition-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+</style>
+{% endblock styles %} 
